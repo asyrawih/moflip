@@ -18,7 +18,7 @@ func NewUserController(app *fiber.App) *UserController {
 }
 
 func (user UserController) Routes() {
-	user.app.Get("/user", user.Login)
+	user.app.Get("/users", user.Login)
 }
 // Login Controller this must depending to Services 
 func (user UserController) Login(ctx *fiber.Ctx) error {
