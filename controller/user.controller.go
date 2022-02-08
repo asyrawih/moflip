@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/hananloser/moflip/helper"
+	"github.com/hananloser/moflip/middleware"
 	"github.com/hananloser/moflip/model"
 	"github.com/hananloser/moflip/services"
 )
@@ -23,6 +23,7 @@ func NewUserController(userService *services.UserService) UserController {
 	}
 }
 
+// UserControllerImpl struct  
 type UserControllerImpl struct {
 	userService services.UserService
 }
@@ -36,16 +37,12 @@ func (controller *UserControllerImpl) Index(ctx *fiber.Ctx) error {
 	})
 }
 
+// Login method    login
 func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error {
 	user := model.UserLoginModel{}
 	err := ctx.BodyParser(&user)
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	helper.PanicIfNeeded(err)
 	result := controller.userService.FindUsernameAndPassword(user.Email, user.Password)
-
-	fmt.Println(result)
 
 	claims := jwt.MapClaims{
 		"name":  result.Name,
@@ -53,12 +50,10 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error {
 		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}
 
-	// Generate en// Create token
+	// Create Intance JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
+	// Encode The Token
 	t, err := token.SignedString([]byte("secret"))
-
-	fmt.Println("Token in Here" + t)
 
 	return ctx.JSON(model.WebResponse{
 		Code:   200,
@@ -69,16 +64,11 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error {
 			"token": t,
 		},
 	})
-
 }
 
-// Define Routes For Each Controller
+// Define Routes For Each Method
 func (controller *UserControllerImpl) Routes(app *fiber.App) {
 	app.Post("/users/login", controller.Login)
-
-	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte("secret"),
-	}))
-
-	app.Get("/users", controller.Index)
+	// Protected the Routes
+	app.Get("/users", middleware.Protected(), controller.Index)
 }

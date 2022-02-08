@@ -15,13 +15,12 @@ func main() {
 	db := config.Init()
 	app := fiber.New()
 
-
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(&userRepo)
 	userController := controller.NewUserController(&userService)
+
 	// Inject App Fiber
 	userController.Routes(app)
-
 
 	// Enable Every Each Request
 	app.Use(logger.New(logger.Config{
