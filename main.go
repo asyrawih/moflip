@@ -3,13 +3,14 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/hananloser/moflip/config"
 	"github.com/hananloser/moflip/controller"
 	"github.com/hananloser/moflip/model"
 )
 
 // Main Function
 func main() {
-
+  config.Init()
 	app := fiber.New()
 
 	// Enable Every Each Request
