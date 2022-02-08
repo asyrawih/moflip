@@ -5,33 +5,28 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/hananloser/moflip/config"
 	"github.com/hananloser/moflip/controller"
-	"github.com/hananloser/moflip/model"
+	"github.com/hananloser/moflip/repository"
+	"github.com/hananloser/moflip/services"
 )
 
 // Main Function
 func main() {
-  config.Init()
+
+	db := config.Init()
 	app := fiber.New()
+
+	userRepo := repository.NewUserRepository(db)
+  userService := services.NewUserService(&userRepo)
+  userController := controller.NewUserController(&userService)
+ 
+  // Inject App Fiber
+  userController.Routes(app)
 
 	// Enable Every Each Request
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
-	// userController
-	userController := controller.NewUserController(app)
-	userController.Routes()
-
 	// Welcome API
-	app.Get("/", Welcome)
-
 	app.Listen(":3000")
-}
-
-func Welcome(ctx *fiber.Ctx) error {
-	return ctx.JSON(model.WebResponse{
-		Code:   200,
-		Status: "success",
-		Data:   "Moflip API",
-	})
 }

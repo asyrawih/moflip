@@ -1,36 +1,39 @@
 package controller
 
 import (
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/hananloser/moflip/entity"
 	"github.com/hananloser/moflip/model"
+	"github.com/hananloser/moflip/services"
 )
 
-type UserController struct {
-	app *fiber.App
+type UserController interface {
+	Index(ctx *fiber.Ctx) error
+
+	Routes(app *fiber.App)
 }
 
-func NewUserController(app *fiber.App) *UserController {
-	return &UserController{
-		app: app,
+func NewUserController(userService *services.UserService) UserController {
+	return &UserControllerImpl{
+		userService: *userService,
 	}
 }
 
-func (user UserController) Routes() {
-	user.app.Get("/users", user.Login)
+type UserControllerImpl struct {
+	userService services.UserService
 }
-// Login Controller this must depending to Services 
-func (user UserController) Login(ctx *fiber.Ctx) error {
+
+func (controller *UserControllerImpl) Index(ctx *fiber.Ctx) error {
+
+	user := controller.userService.GetAllUser()
+
 	return ctx.JSON(model.WebResponse{
-    Code: 200,
-    Status: "success",
-    Data: entity.User{
-      Name: "Hanan Asyrawi",
-      Age: 21,
-      PhoneNumber: "0862612364162",
-      Address: "Tomoni",
-      Email: "asyrawih@gmail.com",
-    },
-  }) 
+		Code:   200,
+		Status: "Success Getted Data",
+		Data:   user,
+	})
+
+}
+
+func (controller *UserControllerImpl) Routes(app *fiber.App) {
+	app.Get("/users", controller.Index)
 }
