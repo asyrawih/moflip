@@ -7,4 +7,6 @@ type UserService interface {
 	GetAllUser() []entity.User
 
 	FindUser(id int) entity.User
+
+  FindUsernameAndPassword(username string , password string) entity.User
 }
