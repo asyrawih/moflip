@@ -48,8 +48,8 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error {
 	fmt.Println(result)
 
 	claims := jwt.MapClaims{
-		"name":  "John Doe",
-		"admin": true,
+		"name":  result.Name,
+		"email": result.Email,
 		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}
 
@@ -66,7 +66,7 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error {
 		Data: fiber.Map{
 			"email": result.Email,
 			"name":  result.Name,
-      "token" : t,
+			"token": t,
 		},
 	})
 
